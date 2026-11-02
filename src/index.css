@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #070d1e;
+    color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  /* High-Contrast Inputs, Selects, and Textareas */
+  input, select, textarea {
+    background-color: #070d1e !important;
+    color: #ffffff !important;
+    border-color: rgba(6, 182, 212, 0.4) !important;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: #22d3ee !important;
+    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.25) !important;
+    outline: none !important;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: #64748b !important;
+  }
+
+  option {
+    background-color: #0b1329 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* =========================================================================
+   HIGH-CONTRAST EYE-FRIENDLY PALETTE FOR THCS NGUYỄN LƯƠNG BẰNG
+   Pure crisp light text on deep navy, zero mud, clear visual hierarchy.
+   ========================================================================= */
+
+/* Glowing accent effects */
+.text-glow-cyan {
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.6) !important;
+}
+
+.text-glow-amber {
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.6) !important;
+}
+
+.text-glow-white {
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Luminous badge and accent colors */
+.badge-cyan {
+  background-color: rgba(8, 51, 68, 0.85);
+  color: #67e8f9;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+}
+
+.badge-emerald {
+  background-color: rgba(6, 78, 59, 0.85);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.badge-amber {
+  background-color: rgba(120, 53, 15, 0.85);
+  color: #fde68a;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.badge-rose {
+  background-color: rgba(136, 19, 55, 0.85);
+  color: #fca5a5;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+.badge-purple {
+  background-color: rgba(88, 28, 135, 0.85);
+  color: #d8b4fe;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+/* Custom scrollbar matching timetable dark cyan theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #070d1e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #06b6d4;
+}

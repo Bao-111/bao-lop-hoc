@@ -1,0 +1,214 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net (Default-Deny Catch-All)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Startup connection health check
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    // Common Hardened Helpers
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Entity Validation Helpers
+    function isValidTeacher(d) {
+      return d.id is string && d.id.size() <= 128
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 100
+        && d.email is string && d.email.size() > 0 && d.email.size() <= 120
+        && d.schoolName is string && d.schoolName.size() <= 150
+        && d.subject is string && d.subject.size() <= 100
+        && d.academicYear is string && d.academicYear.size() <= 50
+        && d.role in ['teacher', 'admin'];
+    }
+
+    function isValidClassroom(d) {
+      return d.id is string && d.id.size() <= 128
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 50
+        && d.grade in ['6', '7', '8', '9', '10', '11', '12']
+        && d.subject is string && d.subject.size() <= 100
+        && d.academicYear is string && d.academicYear.size() <= 50
+        && d.room is string && d.room.size() <= 50
+        && d.teacherName is string && d.teacherName.size() <= 100
+        && d.color is string && d.color.size() <= 50
+        && d.status in ['active', 'archived']
+        && d.createdAt is string && d.createdAt.size() <= 50
+        && d.updatedAt is string && d.updatedAt.size() <= 50;
+    }
+
+    function isValidStudent(d) {
+      return d.id is string && d.id.size() <= 128
+        && d.studentCode is string && d.studentCode.size() > 0 && d.studentCode.size() <= 50
+        && d.fullName is string && d.fullName.size() > 0 && d.fullName.size() <= 100
+        && d.gender in ['male', 'female', 'other']
+        && d.classId is string && d.classId.size() <= 128
+        && d.status in ['active', 'inactive', 'suspended']
+        && d.stars is number && d.stars >= 0
+        && d.demerits is number && d.demerits >= 0
+        && d.createdAt is string && d.createdAt.size() <= 50
+        && d.updatedAt is string && d.updatedAt.size() <= 50;
+    }
+
+    function isValidAttendance(d) {
+      return d.id is string && d.id.size() <= 128
+        && d.classId is string && d.classId.size() <= 128
+        && d.studentId is string && d.studentId.size() <= 128
+        && d.date is string && d.date.size() <= 20
+        && d.session in ['morning', 'afternoon']
+        && d.status in ['present', 'excused', 'unexcused', 'late', 'early_leave']
+        && d.recordedAt is string && d.recordedAt.size() <= 50
+        && d.recordedBy is string && d.recordedBy.size() <= 100;
+    }
+
+    function isValidGrade(d) {
+      return d.id is string && d.id.size() <= 128
+        && d.studentId is string && d.studentId.size() <= 128
+        && d.classId is string && d.classId.size() <= 128
+        && d.updatedAt is string && d.updatedAt.size() <= 50;
+    }
+
+    function isValidAssignment(d) {
+      return d.id is string && d.id.size() <= 128
+        && d.classId is string && d.classId.size() <= 128
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 200
+        && d.description is string && d.description.size() <= 1000
+        && d.deadline is string && d.deadline.size() <= 50
+        && d.pointsMax is number && d.pointsMax > 0
+        && d.status in ['draft', 'assigned', 'submitted', 'graded', 'overdue']
+        && d.createdAt is string && d.createdAt.size() <= 50;
+    }
+
+    function isValidQuiz(d) {
+      return d.id is string && d.id.size() <= 128
+        && d.classId is string && d.classId.size() <= 128
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 200
+        && d.subject is string && d.subject.size() <= 100
+        && d.durationMinutes is number && d.durationMinutes > 0
+        && d.createdAt is string && d.createdAt.size() <= 50;
+    }
+
+    function isValidAnnouncement(d) {
+      return d.id is string && d.id.size() <= 128
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 200
+        && d.content is string && d.content.size() > 0 && d.content.size() <= 2000
+        && d.category in ['schedule', 'exam', 'tuition', 'event', 'urgent', 'health']
+        && d.targetClassId is string && d.targetClassId.size() <= 128
+        && d.date is string && d.date.size() <= 20
+        && d.readCount is number && d.readCount >= 0
+        && d.totalTargetCount is number && d.totalTargetCount >= 0
+        && d.author is string && d.author.size() <= 100
+        && d.authorRole is string && d.authorRole.size() <= 100
+        && d.createdAt is string && d.createdAt.size() <= 50;
+    }
+
+    function isValidActivity(d) {
+      return d.id is string && d.id.size() <= 128
+        && d.classId is string && d.classId.size() <= 128
+        && d.className is string && d.className.size() <= 100
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 200
+        && d.description is string && d.description.size() <= 1500
+        && d.category in ['stem', 'cultural', 'sports', 'outdoor', 'academics', 'ceremony']
+        && d.mediaType in ['images', 'video']
+        && d.date is string && d.date.size() <= 20
+        && d.likesCount is number && d.likesCount >= 0
+        && d.authorName is string && d.authorName.size() <= 100
+        && d.createdAt is string && d.createdAt.size() <= 50;
+    }
+
+    // 1. Teachers Profile Collection
+    match /teachers/{teacherId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(teacherId) && isValidTeacher(incoming()) && request.auth.uid == teacherId;
+      allow update: if isSignedIn() && isValidId(teacherId) && isValidTeacher(incoming()) && request.auth.uid == teacherId;
+      allow delete: if isSignedIn() && isValidId(teacherId) && request.auth.uid == teacherId;
+    }
+
+    // 2. Classrooms Collection
+    match /classrooms/{classroomId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(classroomId) && isValidClassroom(incoming());
+      allow update: if isSignedIn() && isValidId(classroomId) && isValidClassroom(incoming())
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(classroomId);
+    }
+
+    // 3. Students Collection
+    match /students/{studentId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(studentId) && isValidStudent(incoming());
+      allow update: if isSignedIn() && isValidId(studentId) && isValidStudent(incoming())
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(studentId);
+    }
+
+    // 4. Attendance Collection
+    match /attendance/{attendanceId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(attendanceId) && isValidAttendance(incoming());
+      allow update: if isSignedIn() && isValidId(attendanceId) && isValidAttendance(incoming());
+      allow delete: if isSignedIn() && isValidId(attendanceId);
+    }
+
+    // 5. Grades Collection
+    match /grades/{gradeId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(gradeId) && isValidGrade(incoming());
+      allow update: if isSignedIn() && isValidId(gradeId) && isValidGrade(incoming());
+      allow delete: if isSignedIn() && isValidId(gradeId);
+    }
+
+    // 6. Assignments Collection
+    match /assignments/{assignmentId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(assignmentId) && isValidAssignment(incoming());
+      allow update: if isSignedIn() && isValidId(assignmentId) && isValidAssignment(incoming())
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(assignmentId);
+    }
+
+    // 7. Quizzes Collection
+    match /quizzes/{quizId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(quizId) && isValidQuiz(incoming());
+      allow update: if isSignedIn() && isValidId(quizId) && isValidQuiz(incoming())
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(quizId);
+    }
+
+    // 8. Announcements Collection
+    match /announcements/{announcementId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(announcementId) && isValidAnnouncement(incoming());
+      allow update: if isSignedIn() && isValidId(announcementId) && isValidAnnouncement(incoming())
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(announcementId);
+    }
+
+    // 9. Activities Collection
+    match /activities/{activityId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(activityId) && isValidActivity(incoming());
+      allow update: if isSignedIn() && isValidId(activityId) && isValidActivity(incoming())
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && isValidId(activityId);
+    }
+  }
+}

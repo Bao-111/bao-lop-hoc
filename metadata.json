@@ -1,0 +1,6 @@
+{
+  "name": "Smart Class / EduSmart - Hệ Sinh Thái Quản Lý Lớp Học Thông Minh",
+  "description": "Trợ lý số toàn diện cho giáo viên: quản lý lớp học, học sinh, điểm danh, bài tập, sổ điểm, công cụ tương tác & Vòng quay may mắn chuẩn xác.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

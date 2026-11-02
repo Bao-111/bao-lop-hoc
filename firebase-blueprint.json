@@ -1,0 +1,215 @@
+{
+  "entities": {
+    "TeacherProfile": {
+      "title": "TeacherProfile",
+      "description": "Thông tin hồ sơ giáo viên quản nhiệm",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 120 },
+        "schoolName": { "type": "string", "maxLength": 150 },
+        "subject": { "type": "string", "maxLength": 100 },
+        "academicYear": { "type": "string", "maxLength": 50 },
+        "role": { "type": "string", "enum": ["teacher", "admin"] },
+        "avatarUrl": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["id", "name", "email", "schoolName", "subject", "academicYear", "role"]
+    },
+    "Classroom": {
+      "title": "Classroom",
+      "description": "Lớp học do giáo viên quản lý",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 50 },
+        "grade": { "type": "string", "enum": ["6", "7", "8", "9", "10", "11", "12"] },
+        "subject": { "type": "string", "maxLength": 100 },
+        "academicYear": { "type": "string", "maxLength": 50 },
+        "room": { "type": "string", "maxLength": 50 },
+        "teacherName": { "type": "string", "maxLength": 100 },
+        "color": { "type": "string", "maxLength": 50 },
+        "description": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["active", "archived"] },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "name", "grade", "subject", "academicYear", "room", "teacherName", "color", "status", "createdAt", "updatedAt"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Học sinh trong danh sách lớp",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "studentCode": { "type": "string", "maxLength": 50 },
+        "fullName": { "type": "string", "maxLength": 100 },
+        "gender": { "type": "string", "enum": ["male", "female", "other"] },
+        "birthDate": { "type": "string", "maxLength": 20 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["active", "inactive", "suspended"] },
+        "avatarUrl": { "type": "string", "maxLength": 500 },
+        "studentPhone": { "type": "string", "maxLength": 30 },
+        "studentAddress": { "type": "string", "maxLength": 300 },
+        "studyGroup": { "type": "string", "maxLength": 50 },
+        "conduct": { "type": "string", "maxLength": 50 },
+        "parentName": { "type": "string", "maxLength": 100 },
+        "parentRelationship": { "type": "string", "maxLength": 50 },
+        "parentPhone": { "type": "string", "maxLength": 30 },
+        "parentEmail": { "type": "string", "maxLength": 120 },
+        "parentAddress": { "type": "string", "maxLength": 300 },
+        "parentJob": { "type": "string", "maxLength": 100 },
+        "parentAppStatus": { "type": "string", "maxLength": 30 },
+        "note": { "type": "string", "maxLength": 500 },
+        "stars": { "type": "number" },
+        "demerits": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "studentCode", "fullName", "gender", "classId", "status", "stars", "demerits", "createdAt", "updatedAt"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Bản ghi điểm danh học sinh",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 20 },
+        "session": { "type": "string", "enum": ["morning", "afternoon"] },
+        "status": { "type": "string", "enum": ["present", "excused", "unexcused", "late", "early_leave"] },
+        "note": { "type": "string", "maxLength": 300 },
+        "recordedAt": { "type": "string", "maxLength": 50 },
+        "recordedBy": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "classId", "studentId", "date", "session", "status", "recordedAt", "recordedBy"]
+    },
+    "GradeEntry": {
+      "title": "GradeEntry",
+      "description": "Bản ghi điểm học tập theo học sinh",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "oral1": { "type": "number" },
+        "oral2": { "type": "number" },
+        "fifteenMin": { "type": "number" },
+        "midterm": { "type": "number" },
+        "finalExam": { "type": "number" },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "studentId", "classId", "updatedAt"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "Nhiệm vụ hoặc bài tập giao cho lớp",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "deadline": { "type": "string", "maxLength": 50 },
+        "pointsMax": { "type": "number" },
+        "status": { "type": "string", "enum": ["draft", "assigned", "submitted", "graded", "overdue"] },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "classId", "title", "description", "deadline", "pointsMax", "status", "createdAt"]
+    },
+    "Quiz": {
+      "title": "Quiz",
+      "description": "Đề kiểm tra trắc nghiệm hoặc bộ câu hỏi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "subject": { "type": "string", "maxLength": 100 },
+        "durationMinutes": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "classId", "title", "subject", "durationMinutes", "createdAt"]
+    },
+    "SchoolAnnouncement": {
+      "title": "SchoolAnnouncement",
+      "description": "Thông báo nhà trường gửi tới lớp hoặc toàn trường",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "content": { "type": "string", "maxLength": 2000 },
+        "category": { "type": "string", "enum": ["schedule", "exam", "tuition", "event", "urgent", "health"] },
+        "targetClassId": { "type": "string", "maxLength": 128 },
+        "targetClassName": { "type": "string", "maxLength": 100 },
+        "date": { "type": "string", "maxLength": 20 },
+        "readCount": { "type": "number" },
+        "totalTargetCount": { "type": "number" },
+        "isUrgent": { "type": "boolean" },
+        "author": { "type": "string", "maxLength": 100 },
+        "authorRole": { "type": "string", "maxLength": 100 },
+        "attachmentTitle": { "type": "string", "maxLength": 200 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "title", "content", "category", "targetClassId", "date", "readCount", "totalTargetCount", "author", "authorRole", "createdAt"]
+    },
+    "ClassActivityPost": {
+      "title": "ClassActivityPost",
+      "description": "Bản tin hoạt động phong trào và học tập của lớp",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "className": { "type": "string", "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 1500 },
+        "category": { "type": "string", "enum": ["stem", "cultural", "sports", "outdoor", "academics", "ceremony"] },
+        "mediaType": { "type": "string", "enum": ["images", "video"] },
+        "date": { "type": "string", "maxLength": 20 },
+        "likesCount": { "type": "number" },
+        "authorName": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "classId", "className", "title", "description", "category", "mediaType", "date", "likesCount", "authorName", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/teachers/{teacherId}": {
+      "schema": "TeacherProfile",
+      "description": "Hồ sơ cá nhân của giáo viên đã xác thực"
+    },
+    "/classrooms/{classroomId}": {
+      "schema": "Classroom",
+      "description": "Danh sách các lớp học trong hệ thống"
+    },
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Hồ sơ học sinh"
+    },
+    "/attendance/{attendanceId}": {
+      "schema": "AttendanceRecord",
+      "description": "Dữ liệu điểm danh học sinh từng buổi"
+    },
+    "/grades/{gradeId}": {
+      "schema": "GradeEntry",
+      "description": "Sổ điểm tổng hợp của học sinh"
+    },
+    "/assignments/{assignmentId}": {
+      "schema": "Assignment",
+      "description": "Bài tập giao cho học sinh"
+    },
+    "/quizzes/{quizId}": {
+      "schema": "Quiz",
+      "description": "Đề thi và bộ câu hỏi trắc nghiệm"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "SchoolAnnouncement",
+      "description": "Thông báo nhà trường"
+    },
+    "/activities/{activityId}": {
+      "schema": "ClassActivityPost",
+      "description": "Bản tin hoạt động ngoại khóa và sự kiện lớp"
+    }
+  }
+}
