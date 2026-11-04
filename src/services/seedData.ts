@@ -310,12 +310,82 @@ export const INITIAL_GRADES: GradeEntry[] = [
 
 export const INITIAL_ASSIGNMENTS: Assignment[] = [
   {
+    id: 'asg-6a1-01',
+    classId: 'class-6a1',
+    title: 'Bài tập Số học 6: Phép cộng và nhân số tự nhiên - Tính chất giao hoán, kết hợp',
+    description: 'Hoàn thành bài tập 1, 2, 3 trang 18 SGK Toán 6 Tập 1. Vận dụng tính chất kết hợp để tính nhanh các biểu thức. Học sinh có thể làm vào vở rồi chụp ảnh gửi lên hoặc nhập lời giải trực tiếp.',
+    deadline: new Date(Date.now() + 86400000 * 2).toISOString(),
+    pointsMax: 10,
+    subject: 'Toán học',
+    status: 'assigned',
+    targetType: 'all',
+    attachments: [
+      { name: 'Phieu_Bai_Tap_Toan_6_Tuan_6.pdf', size: '240 KB' },
+      { name: 'Huong_Dan_Giai_Mau_Bai_1.docx', size: '115 KB' }
+    ],
+    submissions: [
+      {
+        id: 'sub-6a1-01',
+        assignmentId: 'asg-6a1-01',
+        studentId: 'std-6a1-01',
+        studentName: 'Nguyễn Tuấn Anh',
+        submittedAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+        content: 'Thưa cô, em đã hoàn thành 3 bài tập tính nhanh:\nBài 1: 135 + 360 + 65 + 40 = (135 + 65) + (360 + 40) = 200 + 400 = 600.\nBài 2: 25 * 37 * 4 = (25 * 4) * 37 = 100 * 37 = 3700.\nBài 3: 48 * 19 + 48 * 81 = 48 * (19 + 81) = 48 * 100 = 4800.',
+        attachments: [{ name: 'Anh_chup_bai_lam_Tuan_Anh.png', size: '1.2 MB' }],
+        status: 'graded',
+        score: 10,
+        teacherFeedback: 'Bài làm xuất sắc! Trình bày rất khoa học, biết nhóm số tròn trăm chính xác. Cô khen ngợi!',
+        gradedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+        gradedBy: 'Cô Nguyễn Thị Mai'
+      },
+      {
+        id: 'sub-6a1-02',
+        assignmentId: 'asg-6a1-01',
+        studentId: 'std-6a1-02',
+        studentName: 'Trần Minh Khang',
+        submittedAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+        content: 'Em gửi cô bài làm số học tuần 6 ạ.',
+        attachments: [{ name: 'Bai_lam_toan_Khang.pdf', size: '480 KB' }],
+        status: 'submitted'
+      },
+      {
+        id: 'sub-6a1-03',
+        assignmentId: 'asg-6a1-01',
+        studentId: 'std-6a1-03',
+        studentName: 'Lê Hoàng Yến',
+        submittedAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+        content: 'Thưa cô em nộp bài tập toán ạ.',
+        status: 'revision_required',
+        score: 6.5,
+        teacherFeedback: 'Câu 3 em quên đặt thừa số chung 48 ra ngoài, tính cộng dồn dễ nhầm lẫn. Em sửa lại cách tính nhanh rồi nộp lại nhé!'
+      }
+    ],
+    createdAt: new Date(Date.now() - 86400000).toISOString()
+  },
+  {
+    id: 'asg-6a1-02',
+    classId: 'class-6a1',
+    title: 'Chuyên đề Hình học trực quan: Tam giác đều, Hình vuông, Lục giác đều',
+    description: 'Vẽ và cắt dán các hình phẳng đã học. Nêu số cạnh, số góc và các đường chéo chính của lục giác đều. Nộp file ảnh chụp sản phẩm thực tế.',
+    deadline: new Date(Date.now() + 86400000 * 4).toISOString(),
+    pointsMax: 10,
+    subject: 'Toán học',
+    status: 'assigned',
+    targetType: 'all',
+    attachments: [
+      { name: 'Mau_Ve_Hinh_Hoc_Truc_Quan.pdf', size: '1.8 MB' }
+    ],
+    submissions: [],
+    createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
+  },
+  {
     id: 'asg-01',
     classId: 'class-7a3',
     title: 'Bài tập Đại số: Biểu thức đại số & Đơn thức thu gọn',
     description: 'Hoàn thành các bài tập từ bài 1 đến bài 5 trang 32 SGK Toán 7 tập 2. Chụp ảnh bài làm gửi lên ứng dụng trước 22:00.',
     deadline: '2026-10-16T22:00:00.000Z',
     pointsMax: 10,
+    subject: 'Toán học',
     status: 'assigned',
     createdAt: '2026-10-12T08:00:00.000Z'
   },
@@ -326,6 +396,7 @@ export const INITIAL_ASSIGNMENTS: Assignment[] = [
     description: 'Vẽ hình chính xác, trình bày lời giải chi tiết cho 3 bài toán chứng minh song song và tỉ số đồng dạng.',
     deadline: '2026-10-18T22:00:00.000Z',
     pointsMax: 10,
+    subject: 'Toán học',
     status: 'assigned',
     createdAt: '2026-10-12T08:00:00.000Z'
   }

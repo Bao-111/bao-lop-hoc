@@ -112,7 +112,30 @@ export interface AttendanceRecord {
   recordedBy: string;
 }
 
-export type AssignmentStatus = 'draft' | 'assigned' | 'submitted' | 'graded' | 'overdue';
+export type AssignmentStatus = 'draft' | 'assigned' | 'submitted' | 'grading' | 'graded' | 'returned' | 'revision_required' | 'closed' | 'archived';
+export type SubmissionStatus = 'submitted' | 'late' | 'grading' | 'graded' | 'returned' | 'revision_required';
+
+export interface SubmissionAttachment {
+  name: string;
+  url?: string;
+  size?: string;
+}
+
+export interface AssignmentSubmission {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  studentName: string;
+  submittedAt: string;
+  content: string;
+  attachments?: SubmissionAttachment[];
+  status: SubmissionStatus;
+  score?: number | null;
+  teacherFeedback?: string;
+  gradedAt?: string;
+  gradedBy?: string;
+  revisionCount?: number;
+}
 
 export interface Assignment {
   id: string;
@@ -121,8 +144,14 @@ export interface Assignment {
   description: string;
   deadline: string;       // ISO string
   pointsMax: number;
+  subject?: string;
+  targetType?: 'all' | 'specific';
+  targetStudentIds?: string[];
   status: AssignmentStatus;
+  attachments?: SubmissionAttachment[];
+  submissions?: AssignmentSubmission[];
   createdAt: string;
+  updatedAt?: string;
 }
 
 export type QuestionLevel = 'Nhận biết' | 'Thông hiểu' | 'Vận dụng' | 'Vận dụng cao';
@@ -197,14 +226,43 @@ export interface QuizQuestion {
   updatedAt?: string;
 }
 
+export type ExamMode = 'online' | 'practice' | 'strict';
+export type AttemptStatus = 'not_started' | 'in_progress' | 'submitted' | 'auto_submitted' | 'grading' | 'graded';
+
+export interface StudentExamAttempt {
+  id: string;
+  examId: string;
+  studentId: string;
+  studentName: string;
+  startedAt: string;
+  submittedAt?: string;
+  status: AttemptStatus;
+  answers: Record<string, any>; // questionId -> selected answer / statements / fill text
+  flaggedQuestionIds?: string[];
+  score?: number | null;
+  totalPoints?: number;
+  correctCount?: number;
+  totalCount?: number;
+  teacherFeedback?: string;
+}
+
 export interface Quiz {
   id: string;
   classId: string;
   title: string;
   subject: string;
   durationMinutes: number;
+  description?: string;
+  instructions?: string;
+  mode?: ExamMode;
+  startTime?: string;
+  endTime?: string;
+  totalPoints?: number;
+  showAnswersImmediately?: boolean;
   questions: QuizQuestion[];
+  attempts?: StudentExamAttempt[];
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface GradeEntry {

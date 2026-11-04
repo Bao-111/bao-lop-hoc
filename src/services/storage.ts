@@ -227,9 +227,17 @@ export class StorageService {
   // Assignments
   public static getAssignments(): Assignment[] {
     const assignments = this.getItem<Assignment[]>(KEYS.ASSIGNMENTS, []);
-    if (!assignments || assignments.length === 0) {
-      this.setItem(KEYS.ASSIGNMENTS, INITIAL_ASSIGNMENTS);
-      return INITIAL_ASSIGNMENTS;
+    if (!assignments || assignments.length === 0 || !assignments.some(a => a.id === 'asg-6a1-01')) {
+      const merged = [...INITIAL_ASSIGNMENTS];
+      if (assignments && assignments.length > 0) {
+        assignments.forEach(a => {
+          if (!merged.some(m => m.id === a.id)) {
+            merged.push(a);
+          }
+        });
+      }
+      this.setItem(KEYS.ASSIGNMENTS, merged);
+      return merged;
     }
     return assignments;
   }

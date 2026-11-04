@@ -9,7 +9,10 @@ import {
   AttendanceRecord,
   GradeEntry,
   Assignment,
+  AssignmentSubmission,
+  SubmissionStatus,
   Quiz,
+  StudentExamAttempt,
   BehaviorLog,
   TeacherProfile,
   AuditLog,
@@ -90,10 +93,13 @@ interface AppContextType {
   createAssignment: (data: Omit<Assignment, 'id' | 'createdAt'>) => Assignment;
   updateAssignment: (id: string, data: Partial<Assignment>) => void;
   deleteAssignment: (id: string) => void;
+  submitAssignment: (assignmentId: string, submission: Omit<AssignmentSubmission, 'id' | 'submittedAt'>) => void;
+  gradeAssignmentSubmission: (assignmentId: string, submissionId: string, score: number, feedback: string, status?: SubmissionStatus) => void;
 
   createQuiz: (data: Omit<Quiz, 'id' | 'createdAt'>) => Quiz;
   updateQuiz: (id: string, data: Partial<Quiz>) => void;
   deleteQuiz: (id: string) => void;
+  submitExamAttempt: (examId: string, attempt: Omit<StudentExamAttempt, 'id' | 'submittedAt'>) => void;
 
   addBehaviorRecord: (data: Omit<BehaviorLog, 'id' | 'date'>) => void;
   updateTeacherProfile: (profile: Partial<TeacherProfile>) => void;
@@ -1130,6 +1136,70 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast(`Đã xóa bài tập "${target?.title || ''}"`, 'info');
   };
 
+  const submitAssignment = (assignmentId: string, submissionData: Omit<AssignmentSubmission, 'id' | 'submittedAt'>) => {
+    const updated = assignments.map(a => {
+      if (a.id !== assignmentId) return a;
+      const currentSubs = a.submissions || [];
+      const existingIdx = currentSubs.findIndex(s => s.studentId === submissionData.studentId);
+      const now = new Date().toISOString();
+
+      if (existingIdx >= 0) {
+        const existing = currentSubs[existingIdx];
+        const updatedSub: AssignmentSubmission = {
+          ...existing,
+          ...submissionData,
+          submittedAt: now,
+          status: 'submitted',
+          revisionCount: (existing.revisionCount || 0) + 1
+        };
+        const nextSubs = [...currentSubs];
+        nextSubs[existingIdx] = updatedSub;
+        return { ...a, submissions: nextSubs };
+      } else {
+        const newSub: AssignmentSubmission = {
+          ...submissionData,
+          id: `sub-${Date.now()}`,
+          submittedAt: now,
+          status: submissionData.status || 'submitted',
+          revisionCount: 0
+        };
+        return { ...a, submissions: [...currentSubs, newSub] };
+      }
+    });
+
+    setAssignments(updated);
+    StorageService.saveAssignments(updated);
+    showToast('Đã nộp bài tập thành công!', 'success');
+  };
+
+  const gradeAssignmentSubmission = (
+    assignmentId: string,
+    submissionId: string,
+    score: number,
+    feedback: string,
+    status: SubmissionStatus = 'graded'
+  ) => {
+    const updated = assignments.map(a => {
+      if (a.id !== assignmentId) return a;
+      const nextSubs = (a.submissions || []).map(s => {
+        if (s.id !== submissionId) return s;
+        return {
+          ...s,
+          score,
+          teacherFeedback: feedback,
+          status,
+          gradedAt: new Date().toISOString(),
+          gradedBy: teacher.name
+        };
+      });
+      return { ...a, submissions: nextSubs };
+    });
+
+    setAssignments(updated);
+    StorageService.saveAssignments(updated);
+    showToast(status === 'revision_required' ? 'Đã yêu cầu học sinh làm lại bài' : 'Đã chấm điểm và trả bài thành công!', 'success');
+  };
+
   // Quizzes
   const createQuiz = (data: Omit<Quiz, 'id' | 'createdAt'>): Quiz => {
     const newQuiz: Quiz = {
@@ -1156,6 +1226,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setQuizzes(updated);
     StorageService.saveQuizzes(updated);
     showToast(`Đã xóa đề "${target?.title || ''}"`, 'info');
+  };
+
+  const submitExamAttempt = (examId: string, attemptData: Omit<StudentExamAttempt, 'id' | 'submittedAt'>) => {
+    const updated = quizzes.map(q => {
+      if (q.id !== examId) return q;
+      const attempts = q.attempts || [];
+      const newAttempt: StudentExamAttempt = {
+        ...attemptData,
+        id: `att-${Date.now()}`,
+        submittedAt: new Date().toISOString()
+      };
+      return { ...q, attempts: [...attempts, newAttempt] };
+    });
+
+    setQuizzes(updated);
+    StorageService.saveQuizzes(updated);
+    showToast('Đã nộp bài thi thành công!', 'success');
   };
 
   // Behavior
@@ -1344,9 +1431,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         createAssignment,
         updateAssignment,
         deleteAssignment,
+        submitAssignment,
+        gradeAssignmentSubmission,
         createQuiz,
         updateQuiz,
         deleteQuiz,
+        submitExamAttempt,
         addBehaviorRecord,
         updateTeacherProfile,
         createAnnouncement,
