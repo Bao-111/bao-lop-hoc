@@ -98,11 +98,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      const success = loginWithCredentials(loginEmail.trim(), loginPassword);
-      if (success) {
+      const result = loginWithCredentials(loginEmail.trim(), loginPassword);
+      if (result.success) {
         onClose();
       } else {
-        setErrorMsg('Email hoặc mật khẩu không chính xác. Bạn có thể bấm chọn 1 trong 4 vai trò nhanh bên trên để đăng nhập ngay!');
+        setErrorMsg(result.message || 'Email hoặc mật khẩu không chính xác. Bạn có thể bấm chọn 1 trong 4 vai trò nhanh bên trên để đăng nhập ngay!');
       }
     } finally {
       setIsSubmitting(false);
@@ -167,11 +167,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         phone: selectedRole === 'parent' ? regPhone.trim() : undefined
       };
 
-      const success = registerUser(newUserPayload, regPassword);
-      if (success) {
+      const result = registerUser(newUserPayload, regPassword);
+      if (result.success) {
         onClose();
       } else {
-        setErrorMsg('Không thể đăng ký tài khoản lúc này. Vui lòng kiểm tra lại thông tin.');
+        setErrorMsg(result.message || 'Không thể đăng ký tài khoản lúc này. Vui lòng kiểm tra lại thông tin.');
       }
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Lỗi không xác định khi đăng ký.');

@@ -122,8 +122,8 @@ interface AppContextType {
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
   loginAsRole: (role: UserRole) => void;
-  loginWithCredentials: (email: string, pass: string) => boolean;
-  registerUser: (data: Omit<AppUser, 'id'>, pass: string) => boolean;
+  loginWithCredentials: (email: string, pass: string) => { success: boolean; message?: string };
+  registerUser: (data: Omit<AppUser, 'id'>, pass: string) => { success: boolean; message?: string };
   logout: () => void;
   switchRole: (role: UserRole) => void;
   updateCurrentUserProfile: (data: Partial<AppUser>) => void;
@@ -164,7 +164,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch {
       // ignore
     }
-    return DEMO_USERS.teacher;
+    return null;
   });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const userRole = useMemo<UserRole>(() => currentUser?.role || 'teacher', [currentUser]);
@@ -378,46 +378,79 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast(`Đã đăng nhập với vai trò: ${role === 'teacher' ? 'Giáo viên' : role === 'student' ? 'Học sinh' : role === 'parent' ? 'Phụ huynh' : 'Ban Giám Hiệu'} (${user.name})`, 'success');
   }, [showToast]);
 
-  const loginWithCredentials = useCallback((email: string, pass: string): boolean => {
-    // Check demo users
-    const matchedRole = (Object.keys(DEMO_USERS) as UserRole[]).find(
-      r => DEMO_USERS[r].email.toLowerCase() === email.toLowerCase()
-    );
-    if (matchedRole) {
-      loginAsRole(matchedRole);
-      return true;
+  const loginWithCredentials = useCallback((email: string, pass: string): { success: boolean; message?: string } => {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = pass.trim();
+
+    if (!cleanEmail) {
+      return { success: false, message: 'Vui lòng nhập địa chỉ Email đăng nhập.' };
+    }
+    if (!cleanPass) {
+      return { success: false, message: 'Vui lòng nhập Mật khẩu.' };
     }
 
-    // Check custom registered users from localStorage
+    // 1. Check demo users (Mật khẩu chuẩn là 123456)
+    const matchedRole = (Object.keys(DEMO_USERS) as UserRole[]).find(
+      r => DEMO_USERS[r].email.toLowerCase() === cleanEmail
+    );
+    if (matchedRole) {
+      if (cleanPass !== '123456') {
+        return {
+          success: false,
+          message: 'Mật khẩu không chính xác! (Mật khẩu tài khoản mẫu là: 123456).'
+        };
+      }
+      loginAsRole(matchedRole);
+      return { success: true };
+    }
+
+    // 2. Check registered users in localStorage
     try {
       const raw = localStorage.getItem('smart-class:registered-users');
       if (raw) {
         const users: (AppUser & { pass: string })[] = JSON.parse(raw);
-        const found = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.pass === pass);
-        if (found) {
-          const { pass: _, ...safeUser } = found;
+        const userExists = users.find(u => u.email.toLowerCase() === cleanEmail);
+        if (userExists) {
+          if (userExists.pass !== cleanPass) {
+            return {
+              success: false,
+              message: 'Mật khẩu không chính xác! Vui lòng kiểm tra lại mật khẩu bạn đã đăng ký.'
+            };
+          }
+          const { pass: _, ...safeUser } = userExists;
           setCurrentUser(safeUser);
           localStorage.setItem('smart-class:auth-user', JSON.stringify(safeUser));
           if (safeUser.linkedClassId) {
             setActiveClassId(safeUser.linkedClassId);
           }
-          showToast(`Đăng nhập thành công! Xin chào ${safeUser.name}`, 'success');
-          return true;
+          showToast(`Đăng nhập thành công! Chào mừng ${safeUser.name}`, 'success');
+          return { success: true };
         }
       }
     } catch {
       // ignore
     }
 
-    return false;
+    // 3. Neither demo user nor registered user -> Strictly reject
+    return {
+      success: false,
+      message: 'Tài khoản chưa tồn tại trong hệ thống! Vui lòng bấm sang tab "Đăng ký mới" để tạo tài khoản trước khi đăng nhập.'
+    };
   }, [loginAsRole, showToast]);
 
-  const registerUser = useCallback((data: Omit<AppUser, 'id'>, pass: string): boolean => {
+  const registerUser = useCallback((data: Omit<AppUser, 'id'>, pass: string): { success: boolean; message?: string } => {
     try {
+      const cleanEmail = data.email.trim().toLowerCase();
+      if (!cleanEmail || !cleanEmail.includes('@')) {
+        return { success: false, message: 'Địa chỉ Email không hợp lệ.' };
+      }
+      if (!pass || pass.length < 6) {
+        return { success: false, message: 'Mật khẩu cần tối thiểu 6 ký tự.' };
+      }
+
       const raw = localStorage.getItem('smart-class:registered-users');
       const users: (AppUser & { pass: string })[] = raw ? JSON.parse(raw) : [];
 
-      const cleanEmail = data.email.trim().toLowerCase();
       const existingIdx = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
       let newUser: AppUser;
 
@@ -430,7 +463,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
         users[existingIdx] = { ...newUser, pass };
         localStorage.setItem('smart-class:registered-users', JSON.stringify(users));
-        showToast(`Tài khoản đã tồn tại - Đã cập nhật thông tin và tự động đăng nhập cho ${newUser.name}!`, 'success');
+        showToast(`Tài khoản đã tồn tại - Đã cập nhật mật khẩu và tự động đăng nhập cho ${newUser.name}!`, 'success');
       } else {
         newUser = {
           ...data,
@@ -463,10 +496,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (newUser.linkedClassId) {
         setActiveClassId(newUser.linkedClassId);
       }
-      return true;
+      return { success: true };
     } catch (err: unknown) {
       console.error('Registration failed:', err);
-      return false;
+      return { success: false, message: 'Không thể lưu tài khoản lúc này. Vui lòng thử lại.' };
     }
   }, [showToast]);
 
