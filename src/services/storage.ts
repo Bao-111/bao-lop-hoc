@@ -11,7 +11,8 @@ import {
   AuditLog,
   Timetable,
   SchoolAnnouncement,
-  ClassActivityPost
+  ClassActivityPost,
+  AppUser
 } from '../types';
 import {
   DEFAULT_TEACHER,
@@ -422,5 +423,88 @@ export class StorageService {
     this.setItem(KEYS.LUCKY_WHEEL, {});
     this.setItem(KEYS.AUDIT, []);
     this.setItem(KEYS.TIMETABLES, INITIAL_TIMETABLES);
+  }
+
+  // Session & Auth Cache Management
+  public static readonly AUTH_USER_KEY = 'smart-class:auth-user';
+  public static readonly AUTH_HISTORY_KEY = 'smart-class:auth-history';
+
+  public static getSessionUser(): AppUser | null {
+    try {
+      // Priority 1: Persistent cache (localStorage) for returning users who checked "Remember me"
+      const persistent = localStorage.getItem(this.AUTH_USER_KEY);
+      if (persistent) {
+        return JSON.parse(persistent) as AppUser;
+      }
+      // Priority 2: Session cache (sessionStorage) for current browser tab
+      const session = sessionStorage.getItem(this.AUTH_USER_KEY);
+      if (session) {
+        return JSON.parse(session) as AppUser;
+      }
+    } catch (e) {
+      console.warn('Failed to parse cached session user:', e);
+    }
+    return null;
+  }
+
+  public static saveSessionUser(user: AppUser, rememberMe: boolean = true): void {
+    try {
+      const serialized = JSON.stringify(user);
+      if (rememberMe) {
+        localStorage.setItem(this.AUTH_USER_KEY, serialized);
+        sessionStorage.removeItem(this.AUTH_USER_KEY);
+      } else {
+        sessionStorage.setItem(this.AUTH_USER_KEY, serialized);
+        localStorage.removeItem(this.AUTH_USER_KEY);
+      }
+
+      // Update login history (keep last 5 unique accounts)
+      const history = this.getLoginHistory();
+      const filtered = history.filter(h => h.email.toLowerCase() !== user.email.toLowerCase());
+      filtered.unshift({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatarUrl: user.avatarUrl,
+        schoolName: user.schoolName,
+        subject: user.subject,
+        studentName: user.studentName,
+        studentCode: user.studentCode,
+        linkedClassId: user.linkedClassId
+      });
+      localStorage.setItem(this.AUTH_HISTORY_KEY, JSON.stringify(filtered.slice(0, 5)));
+    } catch (e) {
+      console.error('Failed to save session user:', e);
+    }
+  }
+
+  public static clearSessionUser(): void {
+    try {
+      localStorage.removeItem(this.AUTH_USER_KEY);
+      sessionStorage.removeItem(this.AUTH_USER_KEY);
+    } catch (e) {
+      console.error('Failed to clear session user:', e);
+    }
+  }
+
+  public static getLoginHistory(): AppUser[] {
+    try {
+      const raw = localStorage.getItem(this.AUTH_HISTORY_KEY);
+      if (!raw) return [];
+      return JSON.parse(raw) as AppUser[];
+    } catch {
+      return [];
+    }
+  }
+
+  public static removeLoginHistory(email: string): void {
+    try {
+      const history = this.getLoginHistory();
+      const updated = history.filter(h => h.email.toLowerCase() !== email.toLowerCase());
+      localStorage.setItem(this.AUTH_HISTORY_KEY, JSON.stringify(updated));
+    } catch (e) {
+      console.error('Failed to remove account from history:', e);
+    }
   }
 }

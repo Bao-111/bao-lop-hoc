@@ -127,9 +127,9 @@ interface AppContextType {
   userRole: UserRole;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
-  loginAsRole: (role: UserRole) => void;
-  loginWithCredentials: (email: string, pass: string) => { success: boolean; message?: string };
-  registerUser: (data: Omit<AppUser, 'id'>, pass: string) => { success: boolean; message?: string };
+  loginAsRole: (role: UserRole, rememberMe?: boolean) => void;
+  loginWithCredentials: (email: string, pass: string, rememberMe?: boolean) => { success: boolean; message?: string };
+  registerUser: (data: Omit<AppUser, 'id'>, pass: string, rememberMe?: boolean) => { success: boolean; message?: string };
   logout: () => void;
   switchRole: (role: UserRole) => void;
   updateCurrentUserProfile: (data: Partial<AppUser>) => void;
@@ -164,23 +164,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Role-Based Current User State
   const [currentUser, setCurrentUser] = useState<AppUser | null>(() => {
-    try {
-      const saved = localStorage.getItem('smart-class:auth-user');
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // ignore
-    }
-    return null;
+    return StorageService.getSessionUser();
   });
 
-  // Auto-open login modal if user has no saved session cache on first visit
+  // Modal open state for in-app switching/registering
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(() => {
-    try {
-      const saved = localStorage.getItem('smart-class:auth-user');
-      return !saved;
-    } catch {
-      return true;
-    }
+    return StorageService.getSessionUser() === null;
   });
   const userRole = useMemo<UserRole>(() => currentUser?.role || 'teacher', [currentUser]);
 
@@ -383,17 +372,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [firebaseUser, showToast]);
 
   // Role-Based Auth Actions
-  const loginAsRole = useCallback((role: UserRole) => {
+  const loginAsRole = useCallback((role: UserRole, rememberMe: boolean = true) => {
     const user = DEMO_USERS[role];
     setCurrentUser(user);
-    localStorage.setItem('smart-class:auth-user', JSON.stringify(user));
+    StorageService.saveSessionUser(user, rememberMe);
     if (user.linkedClassId) {
       setActiveClassId(user.linkedClassId);
     }
     showToast(`Đã đăng nhập với vai trò: ${role === 'teacher' ? 'Giáo viên' : role === 'student' ? 'Học sinh' : role === 'parent' ? 'Phụ huynh' : 'Ban Giám Hiệu'} (${user.name})`, 'success');
   }, [showToast]);
 
-  const loginWithCredentials = useCallback((email: string, pass: string): { success: boolean; message?: string } => {
+  const loginWithCredentials = useCallback((email: string, pass: string, rememberMe: boolean = true): { success: boolean; message?: string } => {
     const cleanEmail = email.trim().toLowerCase();
     const cleanPass = pass.trim();
 
@@ -415,7 +404,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           message: 'Mật khẩu không chính xác! (Mật khẩu tài khoản mẫu là: 123456).'
         };
       }
-      loginAsRole(matchedRole);
+      loginAsRole(matchedRole, rememberMe);
       return { success: true };
     }
 
@@ -434,7 +423,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
           const { pass: _, ...safeUser } = userExists;
           setCurrentUser(safeUser);
-          localStorage.setItem('smart-class:auth-user', JSON.stringify(safeUser));
+          StorageService.saveSessionUser(safeUser, rememberMe);
           if (safeUser.linkedClassId) {
             setActiveClassId(safeUser.linkedClassId);
           }
@@ -453,7 +442,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, [loginAsRole, showToast]);
 
-  const registerUser = useCallback((data: Omit<AppUser, 'id'>, pass: string): { success: boolean; message?: string } => {
+  const registerUser = useCallback((data: Omit<AppUser, 'id'>, pass: string, rememberMe: boolean = true): { success: boolean; message?: string } => {
     try {
       const cleanEmail = data.email.trim().toLowerCase();
       if (!cleanEmail || !cleanEmail.includes('@')) {
@@ -490,9 +479,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         showToast(`Đăng ký tài khoản thành công! Chào mừng ${newUser.name}`, 'success');
       }
 
-      // Auto login newly registered user
+      // Auto login newly registered user with session cache
       setCurrentUser(newUser);
-      localStorage.setItem('smart-class:auth-user', JSON.stringify(newUser));
+      StorageService.saveSessionUser(newUser, rememberMe);
 
       // Sync teacher profile if registering as teacher
       if (newUser.role === 'teacher') {
@@ -520,20 +509,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const logout = useCallback(() => {
     setCurrentUser(null);
-    localStorage.removeItem('smart-class:auth-user');
+    StorageService.clearSessionUser();
     showToast('Đã đăng xuất khỏi tài khoản', 'info');
     setIsAuthModalOpen(true);
   }, [showToast]);
 
   const switchRole = useCallback((role: UserRole) => {
-    loginAsRole(role);
+    loginAsRole(role, true);
   }, [loginAsRole]);
 
   const updateCurrentUserProfile = useCallback((data: Partial<AppUser>) => {
     setCurrentUser(prev => {
       if (!prev) return null;
       const updated = { ...prev, ...data };
-      localStorage.setItem('smart-class:auth-user', JSON.stringify(updated));
+      StorageService.saveSessionUser(updated, true);
       return updated;
     });
     showToast('Đã cập nhật hồ sơ cá nhân', 'success');

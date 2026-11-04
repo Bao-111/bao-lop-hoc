@@ -22,6 +22,7 @@ import { ReportsPage } from './components/features/reports/ReportsPage';
 import { AuditLogPage } from './components/features/audit/AuditLogPage';
 import { TimetablePage } from './components/features/timetable/TimetablePage';
 import { SchoolFamilyPortal } from './components/features/portal/SchoolFamilyPortal';
+import { AuthGateway } from './components/auth/AuthGateway';
 import { Tv, X, ArrowLeft, Home, ChevronRight } from 'lucide-react';
 
 const TAB_TITLES: Record<string, string> = {
@@ -47,6 +48,18 @@ const TAB_TITLES: Record<string, string> = {
 const MainAppContent: React.FC = () => {
   const { activeTab, setActiveTab, activeClass, projectorMode, toggleProjectorMode, currentUser } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // CRITICAL REQUIREMENT:
+  // Người truy cập lần đầu tiên PHẢI qua form login ngay từ đầu, không được xem hay thao tác app bên trong.
+  // Nếu có cache/history hợp lệ thì tự động vào luôn. Nếu chưa có hoặc đã đăng xuất thì bắt buộc phải login!
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-[#070d1e] text-slate-100 flex flex-col justify-center">
+        <AuthGateway />
+        <ToastContainer />
+      </div>
+    );
+  }
 
   // Render current feature page
   const renderContent = () => {

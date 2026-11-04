@@ -46,6 +46,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [selectedRole, setSelectedRole] = useState<UserRole>('teacher');
   const [selectedDemoRole, setSelectedDemoRole] = useState<UserRole | null>(null);
+  const [rememberMe, setRememberMe] = useState(true);
 
   // Form states
   const [loginEmail, setLoginEmail] = useState('');
@@ -124,7 +125,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      const result = loginWithCredentials(email, pass);
+      const result = loginWithCredentials(email, pass, rememberMe);
       if (result.success) {
         onClose();
       } else {
@@ -226,7 +227,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         phone: selectedRole === 'parent' ? regPhone.trim() : undefined
       };
 
-      const result = registerUser(newUserPayload, regPassword);
+      const result = registerUser(newUserPayload, regPassword, rememberMe);
       if (result.success) {
         onClose();
       } else {
@@ -486,12 +487,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     </div>
                   </div>
 
+                  {/* Remember me checkbox */}
+                  <div className="flex items-center justify-between pt-1">
+                    <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={e => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-cyan-500/30 bg-[#070d1e] text-cyan-400 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-cyan-400"
+                      />
+                      <span>Ghi nhớ đăng nhập trên máy này (Lưu cache tự động đăng nhập)</span>
+                    </label>
+                  </div>
+
                   {/* Buttons (Matching Image 4: Primary Cyan Button + Google Button) */}
-                  <div className="pt-1 flex items-center justify-between gap-3">
+                  <div className="pt-2 flex items-center justify-between gap-3">
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex-1 py-2.5 text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 active:scale-[0.99] disabled:opacity-50 rounded-xl transition-all shadow-md shadow-cyan-500/20 cursor-pointer flex items-center justify-center gap-1.5"
+                      className="flex-1 py-3 px-5 text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 to-teal-400 hover:from-cyan-300 hover:to-teal-300 active:scale-[0.98] disabled:opacity-50 rounded-2xl transition-all shadow-lg shadow-cyan-500/25 cursor-pointer flex items-center justify-center gap-2"
                     >
                       {isSubmitting ? (
                         <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
@@ -504,10 +518,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     <button
                       type="button"
                       onClick={loginGoogle}
-                      className="px-4 py-2.5 text-xs font-bold text-slate-200 bg-[#142244] hover:bg-[#1a2d5a] border border-cyan-500/30 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+                      className="px-5 py-3 text-xs sm:text-sm font-bold text-slate-200 bg-[#101e38] hover:bg-[#16274c] border border-cyan-500/40 rounded-2xl transition-all active:scale-[0.98] cursor-pointer flex items-center gap-2 shrink-0 shadow-sm"
                       title="Đăng nhập nhanh với tài khoản Google"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <Sparkles className="w-4 h-4 text-amber-400" />
                       <span>Google</span>
                     </button>
                   </div>
@@ -845,12 +859,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     </div>
                   )}
 
+                  {/* Remember me on register */}
+                  <div className="pt-1">
+                    <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={e => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-cyan-500/30 bg-[#070d1e] text-cyan-400 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-cyan-400"
+                      />
+                      <span>Tự động lưu phiên đăng nhập trên thiết bị này</span>
+                    </label>
+                  </div>
+
                   {/* Primary Submit Button (Matching Image 3: Bright Cyan Full-width) */}
                   <div className="pt-2">
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-2.5 text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300 active:scale-[0.99] disabled:opacity-50 rounded-xl transition-all shadow-md shadow-cyan-500/20 cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full py-3 px-6 text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 to-teal-400 hover:from-cyan-300 hover:to-teal-300 active:scale-[0.98] disabled:opacity-50 rounded-2xl transition-all shadow-lg shadow-cyan-500/25 cursor-pointer flex items-center justify-center gap-2"
                     >
                       {isSubmitting ? (
                         <Loader2 className="w-4 h-4 animate-spin text-slate-950" />
@@ -872,7 +899,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <button
                     type="button"
                     onClick={loginGoogle}
-                    className="w-full py-2 text-xs font-bold text-slate-200 bg-[#101b38] hover:bg-[#16254e] border border-cyan-500/30 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3 px-6 text-xs sm:text-sm font-bold text-slate-200 bg-[#101e38] hover:bg-[#16274c] border border-cyan-500/40 rounded-2xl transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 shadow-sm"
                   >
                     <Sparkles className="w-4 h-4 text-amber-400" />
                     <span>Đăng ký nhanh với tài khoản Google</span>
