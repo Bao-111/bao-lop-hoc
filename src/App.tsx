@@ -33,7 +33,7 @@ const TAB_TITLES: Record<string, string> = {
   portal: 'Cổng Liên Lạc Gia Đình & Bảng Tin',
   grades: 'Sổ điểm môn học',
   assignments: 'Bài tập về nhà',
-  quizzes: 'Ngân hàng câu hỏi thông minh',
+  quizzes: 'Ngân hàng câu hỏi',
   'ai-teaching': 'Hỏi AI Mọi Thứ & Trợ Lý Dạy Học (Gemini 3.8 Flash)',
   'lucky-wheel': 'Vòng quay may mắn',
   'group-generator': 'Chia nhóm ngẫu nhiên',

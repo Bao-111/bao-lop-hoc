@@ -26,6 +26,7 @@ import {
 
 interface NavItem {
   id: string;
+  uniqueKey?: string;
   label: string;
   icon: React.ReactNode;
   badge?: string | number;
@@ -117,10 +118,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile = false, onCloseM
           key: 'student_study',
           title: 'GÓC HỌC TẬP CỦA EM',
           items: [
-            { id: 'assignments', label: 'Bài tập cần nộp', icon: <BookOpen className="w-4 h-4 text-amber-400" />, badge: 2 },
-            { id: 'timetable', label: 'Thời khóa biểu lớp em', icon: <Calendar className="w-4 h-4 text-cyan-300" /> },
-            { id: 'quizzes', label: 'Đề ôn tập & Câu hỏi', icon: <HelpCircle className="w-4 h-4 text-violet-400" /> },
-            { id: 'ai-teaching', label: 'Hỏi AI bài tập', icon: <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />, badge: 'AI', highlight: true }
+            { id: 'assignments', uniqueKey: 'student-assignments', label: 'Bài tập cần nộp', icon: <BookOpen className="w-4 h-4 text-amber-400" />, badge: 2 },
+            { id: 'timetable', uniqueKey: 'student-timetable', label: 'Thời khóa biểu lớp em', icon: <Calendar className="w-4 h-4 text-cyan-300" /> },
+            { id: 'quizzes', uniqueKey: 'student-quizzes', label: 'Ngân hàng câu hỏi', icon: <HelpCircle className="w-4 h-4 text-violet-400" /> },
+            { id: 'ai-teaching', uniqueKey: 'student-ai', label: 'Hỏi AI bài tập', icon: <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />, badge: 'AI', highlight: true }
           ]
         },
         {
@@ -188,7 +189,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile = false, onCloseM
             { id: 'reports', label: 'Báo cáo phổ điểm các khối', icon: <BarChart3 className="w-4 h-4 text-rose-400" /> },
             { id: 'grades', label: 'Sổ điểm điện tử trường', icon: <FileSpreadsheet className="w-4 h-4 text-emerald-300" /> },
             { id: 'attendance', label: 'Chuyên cần toàn trường', icon: <UserCheck className="w-4 h-4 text-sky-400" /> },
-            { id: 'quizzes', label: 'Ngân hàng đề thi trường', icon: <HelpCircle className="w-4 h-4 text-violet-400" /> }
+            { id: 'quizzes', uniqueKey: 'admin-quizzes', label: 'Ngân hàng câu hỏi', icon: <HelpCircle className="w-4 h-4 text-violet-400" /> }
           ]
         },
         {
@@ -238,11 +239,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile = false, onCloseM
         key: 'teaching',
         title: 'DẠY & HỌC',
         items: [
-          { id: 'quizzes', label: 'Ngân hàng câu hỏi', icon: <HelpCircle className="w-4 h-4 text-violet-400" /> },
-          { id: 'assignments', label: 'Giao bài tập', icon: <BookOpen className="w-4 h-4 text-amber-400" />, badge: 4 },
-          { id: 'assignments', label: 'Chấm bài tự động', icon: <Award className="w-4 h-4 text-emerald-400" /> },
-          { id: 'quizzes', label: 'Tài liệu số', icon: <FileText className="w-4 h-4 text-blue-400" /> },
-          { id: 'ai-teaching', label: 'AI Hỗ trợ', icon: <Sparkles className="w-4 h-4 text-purple-400" />, badge: 'AI', highlight: true }
+          { id: 'quizzes', uniqueKey: 'teaching-quizzes', label: 'Ngân hàng câu hỏi', icon: <HelpCircle className="w-4 h-4 text-violet-400" /> },
+          { id: 'assignments', uniqueKey: 'teaching-assignments', label: 'Giao bài tập', icon: <BookOpen className="w-4 h-4 text-amber-400" />, badge: 4 },
+          { id: 'assignments', uniqueKey: 'teaching-autograding', label: 'Chấm bài tự động', icon: <Award className="w-4 h-4 text-emerald-400" /> },
+          { id: 'quizzes', uniqueKey: 'teaching-digitaldocs', label: 'Tài liệu số', icon: <FileText className="w-4 h-4 text-blue-400" /> },
+          { id: 'ai-teaching', uniqueKey: 'teaching-ai', label: 'AI Hỗ trợ', icon: <Sparkles className="w-4 h-4 text-purple-400" />, badge: 'AI', highlight: true }
         ]
       },
       {
@@ -405,12 +406,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile = false, onCloseM
               {/* Danh sách mục trong phần (ẩn nếu thu nhỏ) */}
               {!isCollapsed && (
                 <div className="space-y-1 animate-in fade-in slide-in-from-top-1 duration-150">
-                  {section.items.map(item => {
+                  {section.items.map((item, idx) => {
                     const isActive = activeTab === item.id;
 
                     return (
                       <button
-                        key={item.id}
+                        key={item.uniqueKey || `${section.key}-${item.id}-${idx}`}
                         onClick={() => handleNavClick(item.id)}
                         className={`w-full flex items-center ${
                           isCompact ? 'justify-center p-2.5' : 'justify-between px-3 py-2'
