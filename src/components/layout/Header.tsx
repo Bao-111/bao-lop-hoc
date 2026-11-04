@@ -63,6 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+  const [selectedSwitchRole, setSelectedSwitchRole] = useState<UserRole | undefined>(undefined);
 
   return (
     <>
@@ -476,7 +477,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
                               key={r}
                               type="button"
                               onClick={() => {
-                                switchRole(r);
+                                setSelectedSwitchRole(r);
+                                setAuthModalMode('login');
+                                setIsAuthModalOpen(true);
                                 setIsUserDropdownOpen(false);
                               }}
                               className={`px-2 py-1.5 rounded-lg text-xs font-bold text-left transition-all cursor-pointer flex items-center justify-between ${
@@ -484,6 +487,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
                                   ? 'bg-cyan-950 text-cyan-300 border border-cyan-400/50 ring-1 ring-cyan-500/30'
                                   : 'bg-[#070d1e] text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-800'
                               }`}
+                              title={`Chuyển sang tài khoản ${ROLE_DETAILS[r].label} (Yêu cầu mật khẩu)`}
                             >
                               <span>{ROLE_DETAILS[r].label}</span>
                               {isSel && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />}

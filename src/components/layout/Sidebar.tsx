@@ -272,7 +272,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile = false, onCloseM
     <div
       className={`${
         isCompact ? 'w-16' : 'w-64'
-      } bg-[#0b1329] border-r border-cyan-500/25 flex flex-col shrink-0 min-h-[calc(100vh-53px)] select-none text-slate-100 transition-all duration-200 relative shadow-2xl`}
+      } bg-[#0b1329] border-r border-cyan-500/25 flex flex-col shrink-0 h-full overflow-hidden select-none text-slate-100 transition-all duration-200 relative shadow-2xl`}
     >
       {/* Nút thu nhỏ / phóng to toàn bộ Sidebar bằng mũi tên */}
       <div className="hidden md:flex justify-end p-2 border-b border-cyan-500/20 bg-[#070d1e]/80">
@@ -473,8 +473,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile = false, onCloseM
 
   return (
     <>
-      {/* Desktop Persistent Sidebar */}
-      <aside className="hidden md:flex">
+      {/* Desktop Persistent Fixed/Sticky Sidebar: Does not move when scrolling main content */}
+      <aside className="hidden md:flex shrink-0 sticky top-[53px] h-[calc(100vh-53px)] z-20 self-start">
         {sidebarContent}
       </aside>
 

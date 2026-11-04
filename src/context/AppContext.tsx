@@ -166,7 +166,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     return null;
   });
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+
+  // Auto-open login modal if user has no saved session cache on first visit
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('smart-class:auth-user');
+      return !saved;
+    } catch {
+      return true;
+    }
+  });
   const userRole = useMemo<UserRole>(() => currentUser?.role || 'teacher', [currentUser]);
 
   // Active Class State

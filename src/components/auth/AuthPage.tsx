@@ -446,24 +446,18 @@ export const AuthPage: React.FC = () => {
                             <div className="text-[11px] text-cyan-300/80 font-mono truncate">{user.email}</div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-slate-800/80">
                             <button
                               type="button"
-                              onClick={() => loginAsRole(role)}
-                              className="py-1.5 px-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all cursor-pointer text-center"
-                              title="Đăng nhập 1 chạm"
+                              onClick={() => {
+                                handleFillDemoLogin(role);
+                                setLoginPassword('');
+                                setErrorMsg(null);
+                              }}
+                              className="col-span-2 py-1.5 px-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition-all cursor-pointer text-center"
+                              title="Chọn tài khoản và nhập mật khẩu"
                             >
-                              Vào ngay ⚡
+                              Chọn tài khoản & Nhập mật khẩu 🔐
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => handleFillDemoLogin(role)}
-                              className="py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all cursor-pointer text-center"
-                              title="Điền thông tin vào form"
-                            >
-                              Điền form
-                            </button>
-                          </div>
                         </div>
                       );
                     })}

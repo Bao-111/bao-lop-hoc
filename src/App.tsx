@@ -22,7 +22,6 @@ import { ReportsPage } from './components/features/reports/ReportsPage';
 import { AuditLogPage } from './components/features/audit/AuditLogPage';
 import { TimetablePage } from './components/features/timetable/TimetablePage';
 import { SchoolFamilyPortal } from './components/features/portal/SchoolFamilyPortal';
-import { AuthPage } from './components/auth/AuthPage';
 import { Tv, X, ArrowLeft, Home, ChevronRight } from 'lucide-react';
 
 const TAB_TITLES: Record<string, string> = {
@@ -48,16 +47,6 @@ const TAB_TITLES: Record<string, string> = {
 const MainAppContent: React.FC = () => {
   const { activeTab, setActiveTab, activeClass, projectorMode, toggleProjectorMode, currentUser } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Mandatory Authentication Gate: anyone accessing this web app must log in first
-  if (!currentUser) {
-    return (
-      <div className="min-h-screen bg-[#070d1e] text-slate-100 flex flex-col">
-        <AuthPage />
-        <ToastContainer />
-      </div>
-    );
-  }
 
   // Render current feature page
   const renderContent = () => {
